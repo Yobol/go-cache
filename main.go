@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"github.com/yobol/go-cache/api"
+	cache "github.com/yobol/go-cache/core"
+)
 
 func main() {
-	fmt.Println("Hello, go-cache")
+	c, err := cache.New(cache.CacheTypeMemory)
+	if err != nil {
+		panic(err)
+	}
+	api.New(c).Listen()
 }
