@@ -33,11 +33,7 @@ func (c *MemoryCache) Set(key string, value []byte) error {
 func (c *MemoryCache) Get(key string) (value []byte, err error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
-	value, existed := c.cache[key]
-	if !existed {
-		return nil, fmt.Errorf("%s not found", key)
-	}
-	return value, nil
+	return c.cache[key], nil
 }
 
 func (c *MemoryCache) Del(key string) error {
