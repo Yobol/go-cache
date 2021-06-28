@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"io/ioutil"
@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-type httpClient struct {
+type HttpClient struct {
 	*http.Client
 	server string
 }
 
-func (c *httpClient) get(key string) string {
+func (c *HttpClient) get(key string) string {
 	resp, e := c.Get(c.server + key)
 	if e != nil {
 		log.Println(key)
@@ -31,7 +31,7 @@ func (c *httpClient) get(key string) string {
 	return string(b)
 }
 
-func (c *httpClient) set(key, value string) {
+func (c *HttpClient) set(key, value string) {
 	req, e := http.NewRequest(http.MethodPut,
 		c.server+key, strings.NewReader(value))
 	if e != nil {
@@ -48,7 +48,7 @@ func (c *httpClient) set(key, value string) {
 	}
 }
 
-func (c *httpClient) Run(cmd *Cmd) {
+func (c *HttpClient) Run(cmd *Cmd) {
 	if cmd.Name == "get" {
 		cmd.Value = c.get(cmd.Key)
 		return
@@ -60,11 +60,11 @@ func (c *httpClient) Run(cmd *Cmd) {
 	panic("unknown cmd name " + cmd.Name)
 }
 
-func newHTTPClient() *httpClient {
+func newHTTPClient() *HttpClient {
 	client := &http.Client{Transport: &http.Transport{MaxIdleConnsPerHost: 1}}
-	return &httpClient{client, "http://localhost:10615/cache/"}
+	return &HttpClient{client, "http://localhost:10615/cache/"}
 }
 
-func (c *httpClient) PipelinedRun([]*Cmd) {
+func (c *HttpClient) PipelinedRun([]*Cmd) {
 	panic("httpClient pipelined run not implement")
 }

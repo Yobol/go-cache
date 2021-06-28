@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/yobol/go-cache/test/benchmark/client"
 )
 
 type statistic struct {
@@ -53,7 +55,7 @@ func (r *result) addResult(src *result) {
 	r.setCount += src.setCount
 }
 
-func run(client Client, c *Cmd, r *result) {
+func run(client client.Client, c *client.Cmd, r *result) {
 	expect := c.Value
 	start := time.Now()
 	client.Run(c)
@@ -69,7 +71,7 @@ func run(client Client, c *Cmd, r *result) {
 	r.addDuration(d, resultType)
 }
 
-func pipeline(client Client, cmds []*Cmd, r *result) {
+func pipeline(client client.Client, cmds []*client.Cmd, r *result) {
 	expect := make([]string, len(cmds))
 	for i, c := range cmds {
 		if c.Name == "get" {
@@ -94,8 +96,8 @@ func pipeline(client Client, cmds []*Cmd, r *result) {
 }
 
 func operate(id, count int, ch chan *result) {
-	client := New(ClientType(typ))
-	cmds := make([]*Cmd, 0)
+	c := client.New(client.ClientType(typ), "")
+	cmds := make([]*client.Cmd, 0)
 	valuePrefix := strings.Repeat("a", valueSize)
 	r := &result{0, 0, 0, make([]statistic, 0)}
 	for i := 0; i < count; i++ {
@@ -115,19 +117,19 @@ func operate(id, count int, ch chan *result) {
 				name = "get"
 			}
 		}
-		c := &Cmd{name, key, value, nil}
+		cmd := &client.Cmd{name, key, value, nil}
 		if pipelen > 1 {
-			cmds = append(cmds, c)
+			cmds = append(cmds, cmd)
 			if len(cmds) == pipelen {
-				pipeline(client, cmds, r)
-				cmds = make([]*Cmd, 0)
+				pipeline(c, cmds, r)
+				cmds = make([]*client.Cmd, 0)
 			}
 		} else {
-			run(client, c, r)
+			run(c, cmd, r)
 		}
 	}
 	if len(cmds) != 0 {
-		pipeline(client, cmds, r)
+		pipeline(c, cmds, r)
 	}
 	ch <- r
 }

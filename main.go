@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/yobol/go-cache/api"
+	"github.com/yobol/go-cache/api/http"
+	"github.com/yobol/go-cache/api/tcp"
 	cache "github.com/yobol/go-cache/core"
 )
 
@@ -10,5 +11,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	api.New(c).Listen()
+	go tcp.New(c).Listen()
+	http.New(c).Listen()
 }
