@@ -1,4 +1,4 @@
-package main
+package client
 
 type Cmd struct {
 	Name  string
@@ -11,6 +11,7 @@ type ClientType string
 
 const (
 	ClientTypeHTTP = "http"
+	ClientTypeTCP  = "tcp"
 )
 
 type Client interface {
@@ -18,10 +19,12 @@ type Client interface {
 	PipelinedRun([]*Cmd)
 }
 
-func New(clientType ClientType) Client {
+func New(clientType ClientType, remoteAddr string) Client {
 	switch clientType {
 	case ClientTypeHTTP:
 		return newHTTPClient()
+	case ClientTypeTCP:
+		return newTCPClient(remoteAddr)
 	}
-	panic("unknown server type ")
+	panic("unknown server type " + clientType)
 }
